@@ -17,14 +17,12 @@ namespace TemporaryStatsPatch
     [Serializable]
     public class StatsWhenFullHPAdditionalData
     {
-        public float health_delta;
         public float maxhealth_delta;
         public float size_delta;
 
 
         public StatsWhenFullHPAdditionalData()
         {
-            health_delta = 0f;
             maxhealth_delta = 0f;
             size_delta = 0f;
         }
@@ -69,12 +67,11 @@ namespace TemporaryStatsPatch
                         SoundManager.Instance.PlayAtPosition(__instance.soundPristineGrow, SoundManager.Instance.GetTransform(), __instance.transform);
                     }
                     // save deltas
-                    __instance.GetAdditionalData().health_delta = data.health * __instance.healthMultiplier - data.health;
                     __instance.GetAdditionalData().maxhealth_delta = data.maxHealth * __instance.healthMultiplier - data.maxHealth;
                     __instance.GetAdditionalData().size_delta = data.stats.sizeMultiplier * __instance.sizeMultiplier - data.stats.sizeMultiplier;
 
                     // apply deltas
-                    data.health += __instance.GetAdditionalData().health_delta;
+                    data.health += data.health * __instance.healthMultiplier - data.health;
                     data.maxHealth += __instance.GetAdditionalData().maxhealth_delta;
                     data.stats.sizeMultiplier += __instance.GetAdditionalData().size_delta;
 
@@ -89,13 +86,17 @@ namespace TemporaryStatsPatch
                     SoundManager.Instance.PlayAtPosition(__instance.soundPristineShrink, SoundManager.Instance.GetTransform(), __instance.transform);
                 }
 
+                //undoHealth
+                var a = data.health;
+                var b = data.maxHealth;
+                var c = data.maxHealth - __instance.GetAdditionalData().maxhealth_delta;
+                data.health = (a * c) / b;
+
                 // unapply deltas
-                data.health -= __instance.GetAdditionalData().health_delta;
                 data.maxHealth -= __instance.GetAdditionalData().maxhealth_delta;
                 data.stats.sizeMultiplier -= __instance.GetAdditionalData().size_delta;
 
                 // reset deltas
-                __instance.GetAdditionalData().health_delta = 0f;
                 __instance.GetAdditionalData().maxhealth_delta = 0f;
                 __instance.GetAdditionalData().size_delta = 0f;
 

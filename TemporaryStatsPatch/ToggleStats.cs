@@ -16,14 +16,12 @@ namespace TemporaryStatsPatch
     [Serializable]
     public class ToggleStatsAdditionalData
     {
-        public float health_delta;
         public float maxhealth_delta;
         public float movementSpeed_delta;
 
 
         public ToggleStatsAdditionalData()
         {
-            health_delta = 0f;
             maxhealth_delta = 0f;
             movementSpeed_delta = 0f;
         }
@@ -58,12 +56,11 @@ namespace TemporaryStatsPatch
             CharacterData data = (CharacterData)Traverse.Create(__instance).Field("data").GetValue();
 
             // save deltas
-            __instance.GetAdditionalData().health_delta = data.health * __instance.hpMultiplier - data.health;
             __instance.GetAdditionalData().maxhealth_delta = data.maxHealth * __instance.hpMultiplier - data.maxHealth;
             __instance.GetAdditionalData().movementSpeed_delta = data.stats.movementSpeed * __instance.movementSpeedMultiplier - data.stats.movementSpeed;
 
             // apply deltas
-            data.health += __instance.GetAdditionalData().health_delta;
+            data.health += data.health * __instance.hpMultiplier - data.health;
             data.maxHealth += __instance.GetAdditionalData().maxhealth_delta;
             data.stats.movementSpeed += __instance.GetAdditionalData().movementSpeed_delta;
 
@@ -86,13 +83,18 @@ namespace TemporaryStatsPatch
         {
             CharacterData data = (CharacterData)Traverse.Create(__instance).Field("data").GetValue();
 
+
+            //undoHealth
+            var a = data.health;
+            var b = data.maxHealth;
+            var c = data.maxHealth - __instance.GetAdditionalData().maxhealth_delta;
+            data.health = (a * c) / b;
+
             // unapply deltas
-            data.health -= __instance.GetAdditionalData().health_delta;
             data.maxHealth -= __instance.GetAdditionalData().maxhealth_delta;
             data.stats.movementSpeed -= __instance.GetAdditionalData().movementSpeed_delta;
 
             // reset deltas
-            __instance.GetAdditionalData().health_delta = 0f;
             __instance.GetAdditionalData().maxhealth_delta = 0f;
             __instance.GetAdditionalData().movementSpeed_delta = 0f;
 
