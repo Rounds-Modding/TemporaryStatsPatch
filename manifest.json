@@ -1,6 +1,6 @@
 {
     "name": "TemporaryStatsPatch",
-    "version_number": "0.0.0",
+    "version_number": "0.0.1",
     "website_url": "https://github.com/Rounds-Modding/TemporaryStatsPatch",
     "description": "Patches erroneous logic in the base game regarding temporary stat effects.",
     "dependencies": [

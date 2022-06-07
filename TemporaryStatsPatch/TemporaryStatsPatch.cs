@@ -12,7 +12,7 @@ using System.Runtime.CompilerServices;
 namespace TemporaryStatsPatch
 {
 
-    [BepInPlugin(ModId, ModName, "0.0.0.0")]
+    [BepInPlugin(ModId, ModName, "0.0.1")]
     [BepInProcess("Rounds.exe")]
     public class TemporaryStatsPatch : BaseUnityPlugin
     {
