@@ -56,12 +56,14 @@ namespace TemporaryStatsPatch
             CharacterData data = (CharacterData)Traverse.Create(__instance).Field("data").GetValue();
 
             // save deltas
+            float ratio = data.health / data.maxHealth;
             __instance.GetAdditionalData().maxhealth_delta = data.maxHealth * __instance.hpMultiplier - data.maxHealth;
             __instance.GetAdditionalData().movementSpeed_delta = data.stats.movementSpeed * __instance.movementSpeedMultiplier - data.stats.movementSpeed;
 
             // apply deltas
-            data.health += data.health * __instance.hpMultiplier - data.health;
             data.maxHealth += __instance.GetAdditionalData().maxhealth_delta;
+            data.maxHealth = Mathf.Max(data.maxHealth, 1f);
+            data.health = ratio * data.maxHealth;
             data.stats.movementSpeed += __instance.GetAdditionalData().movementSpeed_delta;
 
             // update player stuff
@@ -83,15 +85,11 @@ namespace TemporaryStatsPatch
         {
             CharacterData data = (CharacterData)Traverse.Create(__instance).Field("data").GetValue();
 
-
-            //undoHealth
-            var a = data.health;
-            var b = data.maxHealth;
-            var c = data.maxHealth - __instance.GetAdditionalData().maxhealth_delta;
-            data.health = (a * c) / b;
-
             // unapply deltas
+            float ratio = data.health / data.maxHealth;
             data.maxHealth -= __instance.GetAdditionalData().maxhealth_delta;
+            data.maxHealth = Mathf.Max(data.maxHealth, 1f);
+            data.health = ratio * data.maxHealth;
             data.stats.movementSpeed -= __instance.GetAdditionalData().movementSpeed_delta;
 
             // reset deltas

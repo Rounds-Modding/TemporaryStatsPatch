@@ -16,7 +16,6 @@ namespace TemporaryStatsPatch
     [Serializable]
     public class StatsAfterDealingDamageAdditionalData
     {
-        public float health_delta;
         public float maxhealth_delta;
         public float movementSpeed_delta;
         public float jump_delta;
@@ -24,7 +23,6 @@ namespace TemporaryStatsPatch
 
         public StatsAfterDealingDamageAdditionalData()
         {
-            health_delta = 0f;
             maxhealth_delta = 0f;
             movementSpeed_delta = 0f;
             jump_delta = 0f;
@@ -62,7 +60,7 @@ namespace TemporaryStatsPatch
             bool flag = (float)Traverse.Create(data.stats).Field("sinceDealtDamage").GetValue() < __instance.duration;
             if ((bool)Traverse.Create(__instance).Field("isOn").GetValue() != flag)
             {
-
+                float ratio = data.health / data.maxHealth;
                 Traverse.Create(__instance).Field("isOn").SetValue(flag);
 
                 Vector3 localScale = __instance.transform.localScale;
@@ -70,14 +68,14 @@ namespace TemporaryStatsPatch
                 if ((bool)Traverse.Create(__instance).Field("isOn").GetValue())
                 {   
                     // save deltas
-                    __instance.GetAdditionalData().health_delta = data.health * __instance.hpMultiplier - data.health;
                     __instance.GetAdditionalData().maxhealth_delta = data.maxHealth * __instance.hpMultiplier - data.maxHealth;
                     __instance.GetAdditionalData().movementSpeed_delta = data.stats.movementSpeed * __instance.movementSpeedMultiplier - data.stats.movementSpeed;
                     __instance.GetAdditionalData().jump_delta = data.stats.jump * __instance.jumpMultiplier - data.stats.jump;
 
                     // apply deltas
-                    data.health += __instance.GetAdditionalData().health_delta;
                     data.maxHealth += __instance.GetAdditionalData().maxhealth_delta;
+                    data.maxHealth = Mathf.Max(data.maxHealth, 1f);
+                    data.health = ratio * data.maxHealth;
                     data.stats.movementSpeed += __instance.GetAdditionalData().movementSpeed_delta;
                     data.stats.jump += __instance.GetAdditionalData().jump_delta;
 
@@ -92,13 +90,13 @@ namespace TemporaryStatsPatch
                     return false; // skip original (BAD IDEA)
                 }
                 // unapply deltas
-                data.health -= __instance.GetAdditionalData().health_delta;
                 data.maxHealth -= __instance.GetAdditionalData().maxhealth_delta;
+                data.maxHealth = Mathf.Max(data.maxHealth, 1f);
+                data.health = ratio * data.maxHealth;
                 data.stats.movementSpeed -= __instance.GetAdditionalData().movementSpeed_delta;
                 data.stats.jump -= __instance.GetAdditionalData().jump_delta;
 
                 // reset deltas
-                __instance.GetAdditionalData().health_delta = 0f;
                 __instance.GetAdditionalData().maxhealth_delta = 0f;
                 __instance.GetAdditionalData().movementSpeed_delta = 0f;
                 __instance.GetAdditionalData().jump_delta = 0f;
@@ -129,13 +127,14 @@ namespace TemporaryStatsPatch
             if ((bool)Traverse.Create(__instance).Field("isOn").GetValue())
             {
                 // unapply deltas
-                data.health -= __instance.GetAdditionalData().health_delta;
+                float ratio = data.health / data.maxHealth;
                 data.maxHealth -= __instance.GetAdditionalData().maxhealth_delta;
+                data.maxHealth = Mathf.Max(data.maxHealth, 1f);
+                data.health = ratio * data.maxHealth;
                 data.stats.movementSpeed -= __instance.GetAdditionalData().movementSpeed_delta;
                 data.stats.jump -= __instance.GetAdditionalData().jump_delta;
 
                 // reset deltas
-                __instance.GetAdditionalData().health_delta = 0f;
                 __instance.GetAdditionalData().maxhealth_delta = 0f;
                 __instance.GetAdditionalData().movementSpeed_delta = 0f;
                 __instance.GetAdditionalData().jump_delta = 0f;
