@@ -59,6 +59,7 @@ namespace TemporaryStatsPatch
             bool flag = data.health / data.maxHealth >= __instance.healthThreshold;
             if (flag != (bool)Traverse.Create(__instance).Field("isOn").GetValue())
             {
+                float ratio = data.health / data.maxHealth;
                 Traverse.Create(__instance).Field("isOn").SetValue(flag);
                 if ((bool)Traverse.Create(__instance).Field("isOn").GetValue())
                 {
@@ -71,8 +72,9 @@ namespace TemporaryStatsPatch
                     __instance.GetAdditionalData().size_delta = data.stats.sizeMultiplier * __instance.sizeMultiplier - data.stats.sizeMultiplier;
 
                     // apply deltas
-                    data.health += data.health * __instance.healthMultiplier - data.health;
                     data.maxHealth += __instance.GetAdditionalData().maxhealth_delta;
+                    data.maxHealth = Mathf.Max(data.maxHealth, 1f);
+                    data.health = ratio * data.maxHealth;
                     data.stats.sizeMultiplier += __instance.GetAdditionalData().size_delta;
 
                     // update player stuff
@@ -86,14 +88,10 @@ namespace TemporaryStatsPatch
                     SoundManager.Instance.PlayAtPosition(__instance.soundPristineShrink, SoundManager.Instance.GetTransform(), __instance.transform);
                 }
 
-                //undoHealth
-                var a = data.health;
-                var b = data.maxHealth;
-                var c = data.maxHealth - __instance.GetAdditionalData().maxhealth_delta;
-                data.health = (a * c) / b;
-
                 // unapply deltas
                 data.maxHealth -= __instance.GetAdditionalData().maxhealth_delta;
+                data.maxHealth = Mathf.Max(data.maxHealth, 1f);
+                data.health = ratio * data.maxHealth;
                 data.stats.sizeMultiplier -= __instance.GetAdditionalData().size_delta;
 
                 // reset deltas
